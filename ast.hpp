@@ -77,7 +77,9 @@ public:
 };
 
 class StmtNode : public ASTNode{
+
 public:
+	StmtNode(size_t l, size_t c) : ASTNode(l,c){}
 
 private:
 
