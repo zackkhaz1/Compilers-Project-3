@@ -85,13 +85,6 @@ private:
 
 };
 
-
-
-/**  \class ExpNode
-* Superclass for expression nodes (i.e. nodes that can be used as
-* part of an expression).  Nodes that are part of an expression
-* should inherit from this abstract superclass.
-**/
 class ExpNode : public ASTNode{
 protected:
 	ExpNode(size_t line, size_t col)
@@ -99,11 +92,6 @@ protected:
 	}
 };
 
-/**  \class TypeNode
-* Superclass of nodes that indicate a data type. For example, in
-* the declaration "int a", the int part is the type node (a is an IDNode
-* and the whole thing is a DeclNode).
-**/
 class TypeNode : public ASTNode{
 protected:
 	TypeNode(size_t lineIn, size_t colIn)
@@ -129,7 +117,6 @@ public:
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	/** The name of the identifier **/
 	std::string myStrVal;
 };
 
@@ -171,7 +158,7 @@ private:
 class IfElseStmtNode : public StmtNode{
 public:
 			IfElseStmtNode(size_t l, size_t c, ExpNode* eval, std::list<StmtNode*>* trueBranch, std::list<StmtNode*>* falseBranch)
-				: StmtNode(eval->line(), eval->col(), myCond(eval), myTrueBranch(trueBranch), myFalseBranch(falseBranch)){}
+				: StmtNode(eval->line(), eval->col()), myCond(eval), myTrueBranch(trueBranch), myFalseBranch(falseBranch) {}
 private:
 			ExpNode* myCond;
 			std::list<StmtNode*>* myTrueBranch;
@@ -181,7 +168,7 @@ private:
 class IfStmtNode : public StmtNode{
 public:
 	IfStmtNode(size_t l, size_t c, ExpNode* eval, std::list<StmtNode*>* body)
-			: StmtNode(eval->line(), eval->col(), myCond(eval), myBody(eval)){}
+			: StmtNode(eval->line(), eval->col()), myCond(eval), myBody(body) {}
 private:
 			ExpNode* myCond;
 			std::list<StmtNode*>* myBody;
@@ -236,20 +223,17 @@ class ByteTypeNode : public TypeNode{
 };
 
 class IntTypeNode : public TypeNode{
-
-};
-
-class VoidTypeNode : public TypeNode{
-
-};
-
-class IntTypeNode : public TypeNode{
 public:
 	IntTypeNode(size_t lineIn, size_t colIn)
 	: TypeNode(lineIn, colIn){
 	}
 	void unparse(std::ostream& out, int indent);
 };
+class VoidTypeNode : public TypeNode{
+
+};
+
+
 
 ///////EXPNODE CLASSES//////////////
 ///////////////////////////////////
