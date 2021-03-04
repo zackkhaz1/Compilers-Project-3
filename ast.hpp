@@ -18,6 +18,7 @@ class DeclListNode;
 class DeclNode;
 class TypeNode;
 class IDNode;
+class StmtNode;
 
 class ASTNode{
 public:
@@ -75,6 +76,15 @@ public:
 	void unparse(std::ostream& out, int indent) override = 0;
 };
 
+class StmtNode : public ASTNode{
+public:
+
+private:
+
+};
+
+
+
 /**  \class ExpNode
 * Superclass for expression nodes (i.e. nodes that can be used as
 * part of an expression).  Nodes that are part of an expression
@@ -103,14 +113,17 @@ public:
 	// indicate if this is a reference type
 };
 
-/** An identifier. Note that IDNodes subclass
- * ExpNode because they can be used as part of an expression.
-**/
+class LValNode : public ExpNode{
+public:
+		LValNode(size_t l, size_t c)
+		: ExpNode(l,c){}
+private:
+};
+
 class IDNode : public LValNode{
 public:
 	IDNode(IDToken * token)
-	: ExpNode(token->line(), token->col()), myStrVal(token->value()){
-		myStrVal = token->value();
+	: LValNode(token->line(), token->col()){
 	}
 	void unparse(std::ostream& out, int indent);
 private:
@@ -132,7 +145,7 @@ private:
 class FormalDeclNode : public VarDeclNode{
 public:
 	FormalDeclNode(size_t l, size_t c, TypeNode* type, IDNode* id)
-		: VarDeclNode(type->line(), type->col()), myType(type), myId(id){
+		: VarDeclNode(type->line(), type->col(), type, id), myType(type), myId(id){
 }
 private:
 	TypeNode* myType;
@@ -141,7 +154,7 @@ private:
 
 class FnDeclNode : public DeclNode{
 public:
-	FnDeclNode(size_t l, size_t, c, TypeNode* type, IDNode* id, std::list<FormalDeclNode*>* params, std::list<StmtNode*>* body)
+	FnDeclNode(size_t l, size_t c, TypeNode* type, IDNode* id, std::list<FormalDeclNode*>* params, std::list<StmtNode*>* body)
 			:  DeclNode(type->line(), type->col()), myType(type), myId(id){
 			}
 private:
@@ -154,11 +167,22 @@ private:
 ///////////////////////////////////
 
 class IfElseStmtNode : public StmtNode{
-
+public:
+			IfElseStmtNode(size_t l, size_t c, ExpNode* eval, std::list<StmtNode*>* trueBranch, std::list<StmtNode*>* falseBranch)
+				: StmtNode(eval->line(), eval->col(), myCond(eval), myTrueBranch(trueBranch), myFalseBranch(falseBranch)){}
+private:
+			ExpNode* myCond;
+			std::list<StmtNode*>* myTrueBranch;
+			std::list<StmtNode*>* myFalseBranch;
 };
 
 class IfStmtNode : public StmtNode{
-
+public:
+	IfStmtNode(size_t l, size_t c, ExpNode* eval, std::list<StmtNode*>* body)
+			: StmtNode(eval->line(), eval->col(), myCond(eval), myBody(eval)){}
+private:
+			ExpNode* myCond;
+			std::list<StmtNode*>* myBody;
 };
 
 class PostDecStmtNode : public StmtNode{
@@ -252,9 +276,7 @@ class IntLitNode : public ExpNode{
 
 };
 
-class LValNode : public ExpNode{
 
-};
 
 class StrLitNode : public ExpNode{
 
