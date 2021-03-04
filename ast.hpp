@@ -155,57 +155,90 @@ private:
 ///////STMTNODE CLASSES////////////
 ///////////////////////////////////
 
-class IfElseStmtNode : public StmtNode{
+class AssignStmtNode : public StmtNode{
 public:
-			IfElseStmtNode(size_t l, size_t c, ExpNode* eval, std::list<StmtNode*>* trueBranch, std::list<StmtNode*>* falseBranch)
-				: StmtNode(eval->line(), eval->col()), myCond(eval), myTrueBranch(trueBranch), myFalseBranch(falseBranch) {}
+	AssignStmtNode(size_t line, size_t col, AssignExpNode* assignExp)
+	: StmtNode(line, col), myAssignExp(assignExp) {}
 private:
-			ExpNode* myCond;
-			std::list<StmtNode*>* myTrueBranch;
-			std::list<StmtNode*>* myFalseBranch;
+	AssignExpNode* myAssignExp;
+};
+
+
+class ReadStmtNode : public StmtNode{
+public:
+	ReadStmtNode(size_t line, size_t col, LValNode* lval)
+	: StmtNode(line, col), myLVal(lval) {}
+private:
+	LValNode* myLVal; 
+};
+
+class WriteStmtNode : public StmtNode{
+public:
+	WriteStmtNode(size_t line, size_t col, ExpNode* exp)
+	: StmtNode(line, col), myExp(exp) {}
+private:
+	ExpNode* myExp; 
+};
+
+class PostDecStmtNode : public StmtNode{
+public:
+	PostDecStmtNode(size_t line, size_t col, LValNode* lval)
+	: StmtNode(line, col), myLVal(lval) {}
+private:
+	LValNode* myLVal; 
+};
+
+class PostIncStmtNode : public StmtNode{
+public:
+	PostIncStmtNode(size_t line, size_t col, LValNode* lval)
+	: StmtNode(line, col), myLVal(lval) {}
+private:
+	LValNode* myLVal; 
 };
 
 class IfStmtNode : public StmtNode{
 public:
-	IfStmtNode(size_t l, size_t c, ExpNode* eval, std::list<StmtNode*>* body)
-			: StmtNode(eval->line(), eval->col()), myCond(eval), myBody(body) {}
+	IfStmtNode(size_t line, size_t col, ExpNode* evalCond, std::list<StmtNode*>* body)
+	: StmtNode(evalCond->line(), evalCond->col()), myCond(evalCond), myBody(body) {}
 private:
-			ExpNode* myCond;
-			std::list<StmtNode*>* myBody;
+	ExpNode* myCond;
+	std::list<StmtNode*>* myBody;
 };
 
-class PostDecStmtNode : public StmtNode{
-
+class IfElseStmtNode : public StmtNode{
+public:
+	IfElseStmtNode(size_t line, size_t col, ExpNode* evalCond, std::list<StmtNode*>* trueBranch, std::list<StmtNode*>* falseBranch)
+	: StmtNode(evalCond->line(), evalCond->col()), myCond(evalCond), myTrueBranch(trueBranch), myFalseBranch(falseBranch) {}
+private:
+	ExpNode* myCond;
+	std::list<StmtNode*>* myTrueBranch;
+	std::list<StmtNode*>* myFalseBranch;
 };
 
-class PostIncStmtNode : public StmtNode{
-
-};
-
-class ReadStmtNode : public StmtNode{
-
+class WhileStmtNode : public StmtNode{
+public:
+	WhileStmtNode(size_t line, size_t col, ExpNode* exp, std::list<StmtNode*>* body)
+	: StmtNode(line, col), myExp(exp), myBody(body) {}
+private:
+	ExpNode* myExp;
+	std::list<StmtNode*>* myBody;
 };
 
 class ReturnStmtNode : public StmtNode{
-
-};
-
-class whileStmtNode : public StmtNode{
-
-};
-
-class WriteStmtNode : public StmtNode{
-
-};
-
-class AssignStmtNode : public StmtNode{
-
+public:
+	WriteStmtNode(size_t line, size_t col, ExpNode* exp)
+	: StmtNode(line, col), myExp(exp) {}
+private:
+	ExpNode* myExp;
 };
 
 class CallStmtNode : public StmtNode{
-
+public:
+	CallStmtNode(size_t line, size_t col, CallExpNode* callExp)
+	: StmtNode(line, col), myCallExp(callExp) {}
+private:
+	CallExpNode* myCallExp;
 };
-
 
 ///////TYPENODE CLASSES////////////
 ///////////////////////////////////
