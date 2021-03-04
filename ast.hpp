@@ -211,14 +211,24 @@ class CallStmtNode : public StmtNode{
 ///////////////////////////////////
 
 class ArrayTypeNode : public TypeNode{
-
+public:
+			ArrayTypeNode(size_t l, size_t c, TypeNode* type)
+			: TypeNode(type->line(), type->col()), myType(type) {}
+private:
+	TypeNode* myType;
 };
 
 class BoolTypeNode : public TypeNode{
-
+public:
+	BoolTypeNode(size_t l, size_t c)
+	: TypeNode(l,c){}
+private:
 };
 
 class ByteTypeNode : public TypeNode{
+public:
+	ByteTypeNode(size_t l, size_t c)
+	: TypeNode(l,c){}
 
 };
 
@@ -229,8 +239,12 @@ public:
 	}
 	void unparse(std::ostream& out, int indent);
 };
-class VoidTypeNode : public TypeNode{
 
+class VoidTypeNode : public TypeNode{
+public:
+	VoidTypeNode(size_t l, size_t c)
+	: TypeNode(l,c){}
+private:
 };
 
 
@@ -239,11 +253,22 @@ class VoidTypeNode : public TypeNode{
 ///////////////////////////////////
 
 class AssignExpNode : public ExpNode{
-
+public:
+	AssignExpNode(size_t l, size_t c, LValNode* dst, ExpNode* source)
+	: ExpNode(l,c), dest(dst), src(source) { }
+private:
+	LValNode* dest;
+	ExpNode* src;
 };
 
 class BinaryExpNode : public ExpNode{
+public:
+	BinaryExpNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: ExpNode(l,c), lhs(left), rhs(right) {}
 
+private:
+	ExpNode* lhs;
+	ExpNode* rhs;
 };
 
 class CallExpNode : public ExpNode{
@@ -255,24 +280,44 @@ class FalseNode : public ExpNode{
 };
 
 class HavocNode : public ExpNode{
-
+public:
+	HavocNode(size_t l, size_t c)
+	: ExpNode(l,c) {}
 };
 
 class IntLitNode : public ExpNode{
-
+public:
+		IntLitNode(size_t l, size_t c, const int src)
+		: ExpNode(l,c), val(src) {}
+private:
+int val;
 };
 
 
 
 class StrLitNode : public ExpNode{
+public:
+		StrLitNode(size_t l, size_t c, const std::string src)
+		: ExpNode(l,c), val(src) {}
+private:
+	std::string val;
 
 };
 
 class TrueNode : public ExpNode{
+public:
+		TrueNode(size_t l, size_t c)
+		: ExpNode(l,c) { }
+private:
 
 };
 
 class UnaryExpNode : public ExpNode{
+public:
+	UnaryExpNode(size_t l, size_t c, ExpNode* src)
+	: ExpNode(l,c), val(src) {}
+private:
+ExpNode* val;
 
 };
 
@@ -280,48 +325,105 @@ class UnaryExpNode : public ExpNode{
 ////////////////////////////////////////////
 
 class AndNode : public BinaryExpNode{
-
+public:
+	AndNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class DivideNode : public BinaryExpNode{
-
+public:
+	DivideNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class EqualsNode : public BinaryExpNode{
-
+public:
+	EqualsNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class GreateEqNode : public BinaryExpNode{
-
+public:
+	GreateEqNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class GreaterNode : public BinaryExpNode{
-
+public:
+	GreaterNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class LessEqNode : public BinaryExpNode{
-
+public:
+	LessEqNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class MinusNode : public BinaryExpNode{
-
+public:
+	MinusNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class NotEqualsNode : public BinaryExpNode{
-
+public:
+	NotEqualsNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class OrNode : public BinaryExpNode{
-
+public:
+	OrNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class PlusNode : public BinaryExpNode{
-
+public:
+	PlusNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
 
 class TimesNode : public BinaryExpNode{
-
+public:
+	TimesNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+private:
 };
+
+class NegNode : public UnaryExpNode{
+public:
+	NegNode(size_t l, size_t c, ExpNode* src)
+	: UnaryExpNode(l,c,src) { }
+};
+
+class NotNode : public UnaryExpNode{
+public:
+	NotNode(size_t l, size_t c, ExpNode* src)
+	: UnaryExpNode(l,c,src) { }
+};
+
+///////LValNode SUBCLASSES//////////////
+////////////////////////////////////////
+class IndexNode : public LValNode{
+public:
+	IndexNode(size_t l, size_t c, IDNode* baseSrc, ExpNode* offsetSrc)
+	:LValNode(l,c), base(baseSrc), offset(offsetSrc){}
+private:
+IDNode* base;
+ExpNode* offset;
+};
+
 
 } //End namespace crona
 
