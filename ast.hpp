@@ -23,8 +23,8 @@ class StmtNode;
 class ASTNode{
 public:
 	ASTNode(size_t lineIn, size_t colIn)
-	: l(lineIn), c(colIn){
-	}
+	: l(lineIn), c(colIn) {}
+
 	virtual void unparse(std::ostream& out, int indent) = 0;
 	size_t line(){ return l; }
 	size_t col() { return c; }
@@ -55,8 +55,8 @@ private:
 class ProgramNode : public ASTNode{
 public:
 	ProgramNode(std::list<DeclNode *> * globalsIn)
-	: ASTNode(1, 1), myGlobals(globalsIn){
-	}
+	: ASTNode(1, 1), myGlobals(globalsIn) {}
+
 	void unparse(std::ostream& out, int indent) override;
 private:
 	std::list<DeclNode * > * myGlobals;
@@ -70,33 +70,30 @@ private:
 class DeclNode : public ASTNode{
 public:
 	DeclNode(size_t line, size_t col)
-	: ASTNode(line, col) {
-	}
+	: ASTNode(line, col) {}
 
 	void unparse(std::ostream& out, int indent) override = 0;
 };
 
 class StmtNode : public ASTNode{
-
 public:
-	StmtNode(size_t l, size_t c) : ASTNode(l,c){}
-
-private:
+	StmtNode(size_t line, size_t col)
+	: ASTNode(line, col) {}
 
 };
 
 class ExpNode : public ASTNode{
 protected:
 	ExpNode(size_t line, size_t col)
-	: ASTNode(line, col){
-	}
+	: ASTNode(line, col) {}
+
 };
 
 class TypeNode : public ASTNode{
 protected:
 	TypeNode(size_t lineIn, size_t colIn)
-	: ASTNode(lineIn, colIn){
-	}
+	: ASTNode(lineIn, colIn) {}
+
 public:
 	virtual void unparse(std::ostream& out, int indent) = 0;
 	//TODO: consider adding an isRef to use in unparse to
@@ -105,16 +102,18 @@ public:
 
 class LValNode : public ExpNode{
 public:
-		LValNode(size_t l, size_t c)
-		: ExpNode(l,c){}
+	LValNode(size_t line, size_t col)
+	: ExpNode(line, col) {}
+
 private:
+
 };
 
 class IDNode : public LValNode{
 public:
 	IDNode(IDToken * token)
-	: LValNode(token->line(), token->col()){
-	}
+	: LValNode(token->line(), token->col()) {}
+
 	void unparse(std::ostream& out, int indent);
 private:
 	std::string myStrVal;
@@ -123,8 +122,8 @@ private:
 class VarDeclNode : public DeclNode{
 public:
 	VarDeclNode(size_t l, size_t c, TypeNode * type, IDNode * id)
-	: DeclNode(type->line(), type->col()), myType(type), myId(id){
-	}
+	: DeclNode(type->line(), type->col()), myType(type), myId(id) {}
+
 	void unparse(std::ostream& out, int indent);
 private:
 	TypeNode * myType;
@@ -134,7 +133,7 @@ private:
 class FormalDeclNode : public VarDeclNode{
 public:
 	FormalDeclNode(size_t l, size_t c, TypeNode* type, IDNode* id)
-		: VarDeclNode(type->line(), type->col(), type, id), myType(type), myId(id){
+	: VarDeclNode(type->line(), type->col(), type, id), myType(type), myId(id){
 }
 private:
 	TypeNode* myType;
@@ -144,100 +143,10 @@ private:
 class FnDeclNode : public DeclNode{
 public:
 	FnDeclNode(size_t l, size_t c, TypeNode* type, IDNode* id, std::list<FormalDeclNode*>* params, std::list<StmtNode*>* body)
-			:  DeclNode(type->line(), type->col()), myType(type), myId(id){
-			}
+	:  DeclNode(type->line(), type->col()), myType(type), myId(id) {}
 private:
 	TypeNode* myType;
 	IDNode* myId;
-};
-
-
-///////STMTNODE CLASSES////////////
-///////////////////////////////////
-
-class AssignStmtNode : public StmtNode{
-public:
-	AssignStmtNode(size_t line, size_t col, AssignExpNode* assignExp)
-	: StmtNode(line, col), myAssignExp(assignExp) {}
-private:
-	AssignExpNode* myAssignExp;
-};
-
-
-class ReadStmtNode : public StmtNode{
-public:
-	ReadStmtNode(size_t line, size_t col, LValNode* lval)
-	: StmtNode(line, col), myLVal(lval) {}
-private:
-	LValNode* myLVal; 
-};
-
-class WriteStmtNode : public StmtNode{
-public:
-	WriteStmtNode(size_t line, size_t col, ExpNode* exp)
-	: StmtNode(line, col), myExp(exp) {}
-private:
-	ExpNode* myExp; 
-};
-
-class PostDecStmtNode : public StmtNode{
-public:
-	PostDecStmtNode(size_t line, size_t col, LValNode* lval)
-	: StmtNode(line, col), myLVal(lval) {}
-private:
-	LValNode* myLVal; 
-};
-
-class PostIncStmtNode : public StmtNode{
-public:
-	PostIncStmtNode(size_t line, size_t col, LValNode* lval)
-	: StmtNode(line, col), myLVal(lval) {}
-private:
-	LValNode* myLVal; 
-};
-
-class IfStmtNode : public StmtNode{
-public:
-	IfStmtNode(size_t line, size_t col, ExpNode* evalCond, std::list<StmtNode*>* body)
-	: StmtNode(evalCond->line(), evalCond->col()), myCond(evalCond), myBody(body) {}
-private:
-	ExpNode* myCond;
-	std::list<StmtNode*>* myBody;
-};
-
-class IfElseStmtNode : public StmtNode{
-public:
-	IfElseStmtNode(size_t line, size_t col, ExpNode* evalCond, std::list<StmtNode*>* trueBranch, std::list<StmtNode*>* falseBranch)
-	: StmtNode(evalCond->line(), evalCond->col()), myCond(evalCond), myTrueBranch(trueBranch), myFalseBranch(falseBranch) {}
-private:
-	ExpNode* myCond;
-	std::list<StmtNode*>* myTrueBranch;
-	std::list<StmtNode*>* myFalseBranch;
-};
-
-class WhileStmtNode : public StmtNode{
-public:
-	WhileStmtNode(size_t line, size_t col, ExpNode* exp, std::list<StmtNode*>* body)
-	: StmtNode(line, col), myExp(exp), myBody(body) {}
-private:
-	ExpNode* myExp;
-	std::list<StmtNode*>* myBody;
-};
-
-class ReturnStmtNode : public StmtNode{
-public:
-	WriteStmtNode(size_t line, size_t col, ExpNode* exp)
-	: StmtNode(line, col), myExp(exp) {}
-private:
-	ExpNode* myExp;
-};
-
-class CallStmtNode : public StmtNode{
-public:
-	CallStmtNode(size_t line, size_t col, CallExpNode* callExp)
-	: StmtNode(line, col), myCallExp(callExp) {}
-private:
-	CallExpNode* myCallExp;
 };
 
 ///////TYPENODE CLASSES////////////
@@ -245,8 +154,8 @@ private:
 
 class ArrayTypeNode : public TypeNode{
 public:
-			ArrayTypeNode(size_t l, size_t c, TypeNode* type)
-			: TypeNode(type->line(), type->col()), myType(type) {}
+	ArrayTypeNode(size_t l, size_t c, TypeNode* type)
+	: TypeNode(type->line(), type->col()), myType(type) {}
 private:
 	TypeNode* myType;
 };
@@ -262,15 +171,15 @@ class ByteTypeNode : public TypeNode{
 public:
 	ByteTypeNode(size_t l, size_t c)
 	: TypeNode(l,c){}
-
+private:
 };
 
 class IntTypeNode : public TypeNode{
 public:
 	IntTypeNode(size_t lineIn, size_t colIn)
-	: TypeNode(lineIn, colIn){
-	}
+	: TypeNode(lineIn, colIn) {}
 	void unparse(std::ostream& out, int indent);
+private:
 };
 
 class VoidTypeNode : public TypeNode{
@@ -279,8 +188,6 @@ public:
 	: TypeNode(l,c){}
 private:
 };
-
-
 
 ///////EXPNODE CLASSES//////////////
 ///////////////////////////////////
@@ -305,44 +212,49 @@ private:
 };
 
 class CallExpNode : public ExpNode{
-
+public:
+	CallExpNode(size_t l, size_t c, IDNode* id, std::list<ExpNode*>* listOfExp)
+	: ExpNode(l,c), myIDNode(id), myListOfExp(listOfExp) {}
+private:
+	IDNode* myIDNode;
+	std::list<ExpNode*>* myListOfExp;
 };
 
 class FalseNode : public ExpNode{
-
+public:
+	FalseNode(size_t l, size_t c)
+	: ExpNode(l,c) { }
+private:
 };
 
 class HavocNode : public ExpNode{
 public:
 	HavocNode(size_t l, size_t c)
 	: ExpNode(l,c) {}
+private:
 };
 
 class IntLitNode : public ExpNode{
 public:
-		IntLitNode(size_t l, size_t c, const int src)
-		: ExpNode(l,c), val(src) {}
+	IntLitNode(size_t l, size_t c, const int src)
+	: ExpNode(l,c), val(src) {}
 private:
-int val;
+	int val;
 };
-
-
 
 class StrLitNode : public ExpNode{
 public:
-		StrLitNode(size_t l, size_t c, const std::string src)
-		: ExpNode(l,c), val(src) {}
+	StrLitNode(size_t l, size_t c, const std::string src)
+	: ExpNode(l,c), val(src) {}
 private:
 	std::string val;
-
 };
 
 class TrueNode : public ExpNode{
 public:
-		TrueNode(size_t l, size_t c)
-		: ExpNode(l,c) { }
+	TrueNode(size_t l, size_t c)
+	: ExpNode(l,c) { }
 private:
-
 };
 
 class UnaryExpNode : public ExpNode{
@@ -350,7 +262,7 @@ public:
 	UnaryExpNode(size_t l, size_t c, ExpNode* src)
 	: ExpNode(l,c), val(src) {}
 private:
-ExpNode* val;
+	ExpNode* val;
 
 };
 
@@ -438,12 +350,101 @@ class NegNode : public UnaryExpNode{
 public:
 	NegNode(size_t l, size_t c, ExpNode* src)
 	: UnaryExpNode(l,c,src) { }
+private:
 };
 
 class NotNode : public UnaryExpNode{
 public:
 	NotNode(size_t l, size_t c, ExpNode* src)
 	: UnaryExpNode(l,c,src) { }
+private:
+};
+
+///////STMTNODE CLASSES////////////
+///////////////////////////////////
+
+class AssignStmtNode : public StmtNode{
+public:
+	AssignStmtNode(size_t line, size_t col, AssignExpNode* assignExp)
+	: StmtNode(line, col), myAssignExp(assignExp) {}
+private:
+	AssignExpNode* myAssignExp;
+};
+
+class ReadStmtNode : public StmtNode{
+public:
+	ReadStmtNode(size_t line, size_t col, LValNode* lval)
+	: StmtNode(line, col), myLVal(lval) {}
+private:
+	LValNode* myLVal;
+};
+
+class WriteStmtNode : public StmtNode{
+public:
+	WriteStmtNode(size_t line, size_t col, ExpNode* exp)
+	: StmtNode(line, col), myExp(exp) {}
+private:
+	ExpNode* myExp;
+};
+
+class PostDecStmtNode : public StmtNode{
+public:
+	PostDecStmtNode(size_t line, size_t col, LValNode* lval)
+	: StmtNode(line, col), myLVal(lval) {}
+private:
+	LValNode* myLVal;
+};
+
+class PostIncStmtNode : public StmtNode{
+public:
+	PostIncStmtNode(size_t line, size_t col, LValNode* lval)
+	: StmtNode(line, col), myLVal(lval) {}
+private:
+	LValNode* myLVal;
+};
+
+class IfStmtNode : public StmtNode{
+public:
+	IfStmtNode(size_t line, size_t col, ExpNode* evalCond, std::list<StmtNode*>* body)
+	: StmtNode(evalCond->line(), evalCond->col()), myCond(evalCond), myBody(body) {}
+private:
+	ExpNode* myCond;
+	std::list<StmtNode*>* myBody;
+};
+
+class IfElseStmtNode : public StmtNode{
+public:
+	IfElseStmtNode(size_t line, size_t col, ExpNode* evalCond, std::list<StmtNode*>* trueBranch, std::list<StmtNode*>* falseBranch)
+	: StmtNode(evalCond->line(), evalCond->col()), myCond(evalCond), myTrueBranch(trueBranch), myFalseBranch(falseBranch) {}
+private:
+	ExpNode* myCond;
+	std::list<StmtNode*>* myTrueBranch;
+	std::list<StmtNode*>* myFalseBranch;
+};
+
+class WhileStmtNode : public StmtNode{
+public:
+	WhileStmtNode(size_t line, size_t col, ExpNode* exp, std::list<StmtNode*>* body)
+	: StmtNode(line, col), myExp(exp), myBody(body) {}
+private:
+	ExpNode* myExp;
+	std::list<StmtNode*>* myBody;
+};
+
+class ReturnStmtNode : public StmtNode{
+public:
+	ReturnStmtNode(size_t line, size_t col, ExpNode* exp)
+	: StmtNode(line, col), myExp(exp) {}
+private:
+	ExpNode* myExp;
+};
+
+class CallStmtNode : public StmtNode{
+public:
+	CallStmtNode(size_t line, size_t col, CallExpNode* callExp)
+	: StmtNode(line, col), myCallExp(callExp) {}
+private:
+	CallExpNode* myCallExp;
 };
 
 ///////LValNode SUBCLASSES//////////////
@@ -453,8 +454,8 @@ public:
 	IndexNode(size_t l, size_t c, IDNode* baseSrc, ExpNode* offsetSrc)
 	:LValNode(l,c), base(baseSrc), offset(offsetSrc){}
 private:
-IDNode* base;
-ExpNode* offset;
+	IDNode* base;
+	ExpNode* offset;
 };
 
 

@@ -3,8 +3,8 @@
 %debug
 %defines
 %define api.namespace{crona}
-/* %define api.parser.class {Parser} */
-%define parser_class_name {Parser} // For compilation on older version
+%define api.parser.class {Parser}
+/* %define parser_class_name {Parser} // For compilation on older version */
 %define parse.error verbose
 %output "parser.cc"
 %token-table
