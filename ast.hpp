@@ -80,6 +80,7 @@ public:
 	StmtNode(size_t line, size_t col)
 	: ASTNode(line, col) {}
 
+	virtual void unparse(std::ostream& out, int indent) override = 0;
 };
 
 class ExpNode : public ASTNode{
@@ -311,9 +312,9 @@ public:
 private:
 };
 
-class GreateEqNode : public BinaryExpNode{
+class GreaterEqNode : public BinaryExpNode{
 public:
-	GreateEqNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	GreaterEqNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
 	: BinaryExpNode(l,c,left,right){}
 	void unparse(std::ostream& out, int indent) override;
 private:
@@ -330,6 +331,14 @@ private:
 class LessEqNode : public BinaryExpNode{
 public:
 	LessEqNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
+	: BinaryExpNode(l,c,left,right){}
+	void unparse(std::ostream& out, int indent) override;
+private:
+};
+
+class LessNode : public BinaryExpNode{
+public:
+	LessNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
 	: BinaryExpNode(l,c,left,right){}
 	void unparse(std::ostream& out, int indent) override;
 private:
