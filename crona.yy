@@ -62,12 +62,13 @@
 	crona::FormalDeclNode*								transFormal;
 	std::list<crona::FormalDeclNode*>*		transFormals;
 	crona::FormalDeclNode*								transFormalDecl;
-	crona::StmtNode*											transFnBody;
+	std::list<crona::StmtNode*>*					transFnBody;
 	std::list<crona::StmtNode*>*					transStmtList;
-	crona::StmtNode*											transStmt;
+	crona::StmtNode*											transStmts;
 	crona::AssignExpNode*								  transAssignExp;
 	crona::ExpNode*											  transExp;
 	crona::CallExpNode*									  transCallExp;
+	crona::ExpNode*												transLval;
 }
 
 %define parse.assert
@@ -145,13 +146,14 @@
 %type <transFormals>    formals
 %type <transFormals>    formalsList
 %type <transFormal>     formalDecl
-%type <transStmts>      fnBody
+%type <transStmtList>   fnBody
 %type <transStmts>      stmtList
 %type <transStmt>       stmt
 %type <transAssignExp>  assignExp
 %type <transExp>        exp
 %type <transExp>        term
 %type <transCallExp>    callExp
+%type <transLval>				lval
 
 %right ASSIGN
 %left OR
@@ -193,16 +195,17 @@ varDecl 	: id COLON type
 
 type 		: INT
 	  	  {$$ = new IntTypeNode($1->line(), $1->col());}
-		| INT ARRAY LBRACE INTLITERAL RBRACE {
-		}
+		| INT ARRAY LBRACE INTLITERAL RBRACE { }
 		| BOOL {$$ = new BoolTypeNode($1->line(), $1->col()); }
 		| BOOL ARRAY LBRACE INTLITERAL RBRACE { }
 		| BYTE { $$ = new ByteTypeNode($1->line(), $1->col());}
 		| BYTE ARRAY LBRACE INTLITERAL RBRACE { }
-		| STRING {$$ = new StrLitNode($1->line(), $1->col()); }
-		| VOID {$$ = new VoidTypeNode($1->line(), $1->col()); }
+		| STRING {
+			$$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(),$1->col()));
+		}
+		| VOID {$$ = new VoidTypeNode($1->line(), $1->col());}
 
-fnDecl 		: id COLON type formals fnBody { $$ = new FnDeclNode($1->line(), $1->col(), $1, $2, $3, $4);}
+fnDecl 		: id COLON type formals fnBody {$$ = new FnDeclNode($1->line(), $1->col(), $3, $1, $4, $5);}
 
 formals 	: LPAREN RPAREN { $$ = new std::list<FormalDeclNode*>();}
 		| LPAREN formalsList RPAREN { $$ = $2;}
@@ -224,7 +227,7 @@ stmt		: varDecl SEMICOLON {$$ = $1; }
 		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($2->line(), $2->col(), $1);}
 
 		| lval CROSSCROSS SEMICOLON { $$ = new PostIncStmtNode($2->line(), $2->col(), $1); }
-		
+
 		| READ lval SEMICOLON { $$ = new ReadStmtNode($1->line(), $1->col(), $2);}
 
 		| WRITE exp SEMICOLON { $$ = new WriteStmtNode($1->line(), $1->col(), $2);}
