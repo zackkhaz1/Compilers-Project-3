@@ -112,6 +112,47 @@ void AssignExpNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 }
 
+void CallExpNode::unparse(std::ostream& out, int indent){
+	doIndent(out, indent);
+	myIDNode->unparse(out, 0);
+	out << "(";
+	bool firstExpInList = true;
+	for(auto exp : *myListOfExp){
+		if(firstExpInList){
+			firstExpInList = false;
+		}
+		else{
+			out << ", ";
+		}
+	}
+	out << ")";
+}
+
+void FalseNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << "false";
+}
+
+void HavocNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << "havoc";
+}
+
+void IntLitNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << val;
+}
+
+void StrLitNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << val;
+}
+
+void TrueNode::unparse(std::ostream& out, int indent){
+	doIndent(out,indent);
+	out << "true";
+}
+
 void IDNode::unparse(std::ostream& out, int indent){
 	doIndent(out,indent);
 	out << this->myStrVal;
@@ -203,6 +244,9 @@ void TimesNode::unparse(std::ostream& out, int indent){
 	out << " * ";
 	rhs->unparse(out, 0);
 }
+
+///////UNARYEXPNODE SUBCLASSES//////////////
+////////////////////////////////////////////
 
 void NegNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
@@ -309,5 +353,15 @@ void CallStmtNode::unparse(std::ostream& out, int indent){
 	out << ";\n";
 }
 
+///////LValNode SUBCLASSES//////////////
+////////////////////////////////////////
+
+void IndexNode::unparse(std::ostream& out, int indent){
+	doIndent(out, indent);
+	base->unparse(out, 0);
+	out << "[";
+	offset->unparse(out, 0);
+	out << "]";
+}
 
 } // End namespace crona

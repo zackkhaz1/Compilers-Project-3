@@ -281,7 +281,6 @@ public:
 
 protected:
 	ExpNode* val;
-
 };
 
 ///////BINARYEXPNODE SUBCLASSES//////////////
@@ -382,6 +381,9 @@ public:
 	void unparse(std::ostream& out, int indent) override;
 private:
 };
+
+///////UNARYEXPNODE SUBCLASSES//////////////
+////////////////////////////////////////////
 
 class NegNode : public UnaryExpNode{
 public:
