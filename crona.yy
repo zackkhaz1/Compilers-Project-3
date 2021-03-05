@@ -50,14 +50,24 @@
 }
 
 %union {
-   crona::Token*                         transToken;
-   crona::IDToken*                       transIDToken;
-   crona::ProgramNode*                   transProgram;
-   std::list<crona::DeclNode *> *        transDeclList;
-   crona::DeclNode *                     transDecl;
-   crona::VarDeclNode *                  transVarDecl;
-   crona::TypeNode *                     transType;
-   crona::IDNode *                       transID;
+	crona::Token*                         transToken;
+	crona::IDToken*                       transIDToken;
+	crona::ProgramNode*                   transProgram;
+	std::list<crona::DeclNode *> *        transDeclList;
+	crona::DeclNode *                     transDecl;
+	crona::VarDeclNode *                  transVarDecl;
+	crona::TypeNode *                     transType;
+	crona::IDNode *                       transID;
+	crona::FnDeclNode*										transFn;
+	crona::FormalDeclNode*								transFormal;
+	std::list<crona::FormalDeclNode*>*		transFormals;
+	crona::FormalDeclNode*								transFormalDecl;
+	crona::StmtNode*											transFnBody;
+	std::list<crona::StmtNode*>*					transStmtList;
+	crona::StmtNode*											transStmt;
+	crona::AssignExpNode*								  transAssignExp;
+	crona::ExpNode*											  transExp;
+	crona::CallExpNode*									  transCallExp;
 }
 
 %define parse.assert
@@ -210,17 +220,28 @@ stmtList 	: /* epsilon */ { $$ = new std::list<StmtNode*>();}
 
 stmt		: varDecl SEMICOLON {$$ = $1; }
 		| assignExp SEMICOLON { $$ = new AssignStmtNode($1->line(), $1->col(), $1);}
+
 		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($2->line(), $2->col(), $1);}
+
 		| lval CROSSCROSS SEMICOLON { $$ = new PostIncStmtNode($2->line(), $2->col(), $1); }
+		
 		| READ lval SEMICOLON { $$ = new ReadStmtNode($1->line(), $1->col(), $2);}
+
 		| WRITE exp SEMICOLON { $$ = new WriteStmtNode($1->line(), $1->col(), $2);}
+
 		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY {$$ = new IfStmtNode($1->col(),$1->col(), $3, $6);}
+
 		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY { $$ = new IfElseStmtNode($1->line(),
 			$1->col(), $3, $6, $10 ); }
+
 		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY { $$ = new WhileStmtNode($1->line(), $1->col(), $3, $6); }
+
 		| RETURN exp SEMICOLON { $$ = new ReturnStmtNode($1->line(), $1->col(), $2);}
+
 		| RETURN SEMICOLON {$$ = new ReturnStmtNode($1->line(), $1->col());}
+
 		| callExp SEMICOLON {$$ = new CallExpNode($1->line(), $1->col(), $1); }
+
 
 exp		: assignExp { }
 		| exp DASH exp { }
