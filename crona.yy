@@ -131,7 +131,17 @@
 %type <transVarDecl>    varDecl
 %type <transType>       type
 %type <transID>         id
-
+%type <transFn>         fnDecl
+%type <transFormals>    formals
+%type <transFormals>    formalsList
+%type <transFormal>     formalDecl
+%type <transStmts>      fnBody
+%type <transStmts>      stmtList
+%type <transStmt>       stmt
+%type <transAssignExp>  assignExp
+%type <transExp>        exp
+%type <transExp>        term
+%type <transCallExp>    callExp
 
 %right ASSIGN
 %left OR
@@ -160,11 +170,9 @@ globals 	: globals decl
 
 decl 		: varDecl SEMICOLON
 		  {
-		  //TODO: Make sure to fill out this rule
-		  // (as well as any other empty rule!)
-		  // with the appropriate SDD to create an AST
+		  	$$ = $1;
 		  }
-		| fnDecl { /* SDD rules can go on the same line if you want */ }
+		| fnDecl { }
 ;
 varDecl 	: id COLON type
 		  {
@@ -174,21 +182,20 @@ varDecl 	: id COLON type
 		  }
 
 type 		: INT
-	  	  {
-		  $$ = new IntTypeNode($1->line(), $1->col());
-		  }
-		| INT ARRAY LBRACE INTLITERAL RBRACE { }
-		| BOOL { }
+	  	  {$$ = new IntTypeNode($1->line(), $1->col());}
+		| INT ARRAY LBRACE INTLITERAL RBRACE {
+		}
+		| BOOL {$$ = new BoolTypeNode($1->line(), $1->col()); }
 		| BOOL ARRAY LBRACE INTLITERAL RBRACE { }
-		| BYTE { }
+		| BYTE { $$ = new ByteTypeNode($1->line(), $1->col());}
 		| BYTE ARRAY LBRACE INTLITERAL RBRACE { }
-		| STRING { }
-		| VOID { }
+		| STRING {$$ = new StrLitNode($1->line(), $1->col()); }
+		| VOID {$$ = new VoidTypeNode($1->line(), $1->col()); }
 
-fnDecl 		: id COLON type formals fnBody { }
+fnDecl 		: id COLON type formals fnBody { $$ = new FnDeclNode($1->line(), $1->col(), $1, $2, $3, $4);}
 
-formals 	: LPAREN RPAREN { }
-		| LPAREN formalsList RPAREN { }
+formals 	: LPAREN RPAREN { $$ = new std::list<FormalDeclNode*>();}
+		| LPAREN formalsList RPAREN { $$ = $2;}
 
 
 formalsList	: formalDecl { }
@@ -198,21 +205,22 @@ formalDecl 	: id COLON type { }
 
 fnBody		: LCURLY stmtList RCURLY { }
 
-stmtList 	: /* epsilon */ { }
-		| stmtList stmt { }
+stmtList 	: /* epsilon */ { $$ = new std::list<StmtNode*>();}
+		| stmtList stmt {$$ = $1; $$->push_back($2);}
 
-stmt		: varDecl SEMICOLON { }
-		| assignExp SEMICOLON { }
-		| lval DASHDASH SEMICOLON { }
-		| lval CROSSCROSS SEMICOLON { }
-		| READ lval SEMICOLON { }
-		| WRITE exp SEMICOLON { }
-		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY { }
-		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY { }
-		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY { }
-		| RETURN exp SEMICOLON { }
-		| RETURN SEMICOLON { }
-		| callExp SEMICOLON { }
+stmt		: varDecl SEMICOLON {$$ = $1; }
+		| assignExp SEMICOLON { $$ = new AssignStmtNode($1->line(), $1->col(), $1);}
+		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($2->line(), $2->col(), $1);}
+		| lval CROSSCROSS SEMICOLON { $$ = new PostIncStmtNode($2->line(), $2->col(), $1); }
+		| READ lval SEMICOLON { $$ = new ReadStmtNode($1->line(), $1->col(), $2);}
+		| WRITE exp SEMICOLON { $$ = new WriteStmtNode($1->line(), $1->col(), $2);}
+		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY {$$ = new IfStmtNode($1->col(),$1->col(), $3, $6);}
+		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY { $$ = new IfElseStmtNode($1->line(),
+			$1->col(), $3, $6, $10 ); }
+		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY { $$ = new WhileStmtNode($1->line(), $1->col(), $3, $6); }
+		| RETURN exp SEMICOLON { $$ = new ReturnStmtNode($1->line(), $1->col(), $2);}
+		| RETURN SEMICOLON {$$ = new ReturnStmtNode($1->line(), $1->col());}
+		| callExp SEMICOLON {$$ = new CallExpNode($1->line(), $1->col(), $1); }
 
 exp		: assignExp { }
 		| exp DASH exp { }
