@@ -122,98 +122,98 @@ void IDNode::unparse(std::ostream& out, int indent){
 
 void AndNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " && ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void DivideNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " / ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void EqualsNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " == ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void GreaterEqNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " >= ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void GreaterNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " > ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void LessEqNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " <= ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void LessNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " < ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void MinusNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " - ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void NotEqualsNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " != ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void OrNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " || ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void PlusNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " + ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void TimesNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	leftExp->unparse(out, 0);
+	lhs->unparse(out, 0);
 	out << " * ";
-	rightExp->unparse(out, 0);
+	rhs->unparse(out, 0);
 }
 
 void NegNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	out << "-";
-	myExp->unparse(out, 0);
+	val->unparse(out, 0);
 }
 
 void NotNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	out << "!";
-	myExp->unparse(out, 0);
+	val->unparse(out, 0);
 }
 
 ///////STMTNODE CLASSES/////////////

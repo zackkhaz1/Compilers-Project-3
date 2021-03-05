@@ -216,9 +216,8 @@ class BinaryExpNode : public ExpNode{
 public:
 	BinaryExpNode(size_t l, size_t c, ExpNode* left, ExpNode* right)
 	: ExpNode(l,c), lhs(left), rhs(right) {}
-	void unparse(std::ostream& out, int indent) override;
 
-private:
+protected:
 	ExpNode* lhs;
 	ExpNode* rhs;
 };
@@ -279,8 +278,8 @@ class UnaryExpNode : public ExpNode{
 public:
 	UnaryExpNode(size_t l, size_t c, ExpNode* src)
 	: ExpNode(l,c), val(src) {}
-	void unparse(std::ostream& out, int indent) override;
-private:
+
+protected:
 	ExpNode* val;
 
 };
