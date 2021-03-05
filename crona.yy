@@ -64,11 +64,12 @@
 	crona::FormalDeclNode*								transFormalDecl;
 	std::list<crona::StmtNode*>*					transFnBody;
 	std::list<crona::StmtNode*>*					transStmtList;
-	crona::StmtNode*											transStmts;
+	crona::StmtNode*											transStmt;
 	crona::AssignExpNode*								  transAssignExp;
 	crona::ExpNode*											  transExp;
 	crona::CallExpNode*									  transCallExp;
-	crona::ExpNode*												transLval;
+	crona::LValNode*											transLval;
+	std::list<ExpNode*>*									transActuals;
 }
 
 %define parse.assert
@@ -147,13 +148,14 @@
 %type <transFormals>    formalsList
 %type <transFormal>     formalDecl
 %type <transStmtList>   fnBody
-%type <transStmts>      stmtList
-%type <transStmt>       stmt
+%type <transStmtList>   stmtList
+%type <transStmt>      	stmt
 %type <transAssignExp>  assignExp
 %type <transExp>        exp
 %type <transExp>        term
 %type <transCallExp>    callExp
 %type <transLval>				lval
+%type <transActuals>		actualsList
 
 %right ASSIGN
 %left OR
@@ -185,7 +187,7 @@ decl 		: varDecl SEMICOLON
 		  	$$ = $1;
 		  }
 		| fnDecl { }
-;
+
 varDecl 	: id COLON type
 		  {
 		  size_t line = $1->line();
@@ -221,12 +223,12 @@ fnBody		: LCURLY stmtList RCURLY { }
 stmtList 	: /* epsilon */ { $$ = new std::list<StmtNode*>();}
 		| stmtList stmt {$$ = $1; $$->push_back($2);}
 
-stmt		: varDecl SEMICOLON {$$ = $1; }
+stmt		: varDecl SEMICOLON {$$ = $1;}
 		| assignExp SEMICOLON { $$ = new AssignStmtNode($1->line(), $1->col(), $1);}
 
-		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($2->line(), $2->col(), $1);}
+		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($1->line(), $1->col(), $1);} //
 
-		| lval CROSSCROSS SEMICOLON { $$ = new PostIncStmtNode($2->line(), $2->col(), $1); }
+		| lval CROSSCROSS SEMICOLON { $$ = new PostIncStmtNode($1->line(), $1->col(), $1); }
 
 		| READ lval SEMICOLON { $$ = new ReadStmtNode($1->line(), $1->col(), $2);}
 
@@ -241,7 +243,7 @@ stmt		: varDecl SEMICOLON {$$ = $1; }
 
 		| RETURN exp SEMICOLON { $$ = new ReturnStmtNode($1->line(), $1->col(), $2);}
 
-		| RETURN SEMICOLON {$$ = new ReturnStmtNode($1->line(), $1->col());}
+		| RETURN SEMICOLON {$$ = new ReturnStmtNode($1->line(), $1->col(), NULL);}
 
 		| callExp SEMICOLON {$$ = new CallExpNode($1->line(), $1->col(), $1); }
 
@@ -265,8 +267,14 @@ exp		: assignExp { }
 
 assignExp	: lval ASSIGN exp { }
 
-callExp		: id LPAREN RPAREN { }
-		| id LPAREN actualsList RPAREN { }
+callExp        : id LPAREN RPAREN
+          {
+          std::list<ExpNode *>* listOfExp = new std::list<ExpNode *>();
+          $$ = new CallExpNode($1->line(), $1->col(), $1, listOfExp);
+          }
+
+        | id LPAREN actualsList RPAREN
+          { $$ = new CallExpNode($1->line(), $1->col(), $1, $3); }
 
 actualsList	: exp { }
 		| actualsList COMMA exp { }

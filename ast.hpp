@@ -67,13 +67,7 @@ private:
 * Superclass for declarations (i.e. nodes that can be used to
 * declare a struct, function, variable, etc).  This base class will
 **/
-class DeclNode : public ASTNode{
-public:
-	DeclNode(size_t line, size_t col)
-	: ASTNode(line, col) {}
 
-	void unparse(std::ostream& out, int indent) override = 0;
-};
 
 class StmtNode : public ASTNode{
 public:
@@ -81,6 +75,14 @@ public:
 	: ASTNode(line, col) {}
 
 	virtual void unparse(std::ostream& out, int indent) override = 0;
+};
+
+class DeclNode : public StmtNode{
+public:
+	DeclNode(size_t line, size_t col)
+	: StmtNode(line, col) {}
+
+	void unparse(std::ostream& out, int indent) override = 0;
 };
 
 class ExpNode : public ASTNode{
@@ -124,7 +126,7 @@ private:
 class VarDeclNode : public DeclNode{
 public:
 	VarDeclNode(size_t l, size_t c, TypeNode * type, IDNode * id)
-	: DeclNode(type->line(), type->col()), myType(type), myId(id) {}
+	: DeclNode(type->line(), type->col()) {}
 
 	void unparse(std::ostream& out, int indent);
 private:
