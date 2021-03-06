@@ -217,12 +217,14 @@ formals 	: LPAREN RPAREN { $$ = new std::list<FormalDeclNode*>(); }
 		| LPAREN formalsList RPAREN { $$ = $2; }
 
 
-formalsList	: formalDecl { }
-		| formalDecl COMMA formalsList { }
+formalsList	: formalDecl {
+	$$ = new std::list<FormalDeclNode*>();
+ 	$$->push_back($1); }
+		| formalDecl COMMA formalsList {$$ = $3; $$->push_back($1); }
 
-formalDecl 	: id COLON type { }
+formalDecl 	: id COLON type { $$ = new FormalDeclNode($1->line(), $1->col(), $3, $1); }
 
-fnBody		: LCURLY stmtList RCURLY { }
+fnBody		: LCURLY stmtList RCURLY { $$ = $2;}
 
 stmtList 	: /* epsilon */
 		  { $$ = new std::list<StmtNode*>();}
