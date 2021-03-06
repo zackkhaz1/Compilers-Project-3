@@ -179,14 +179,11 @@ globals 	: globals decl
 	  	  DeclNode * declNode = $2;
 		  $$->push_back(declNode);
 	  	  }
-		|
+		| /* epsilon */
 		  { $$ = new std::list<DeclNode * >(); }
 
-decl 		: varDecl SEMICOLON
-		  {
-		  	$$ = $1;
-		  }
-		| fnDecl { }
+decl 		: varDecl SEMICOLON { $$ = $1; }
+		| fnDecl { $$ = $1; }
 
 varDecl 	: id COLON type
 		  {
@@ -195,22 +192,20 @@ varDecl 	: id COLON type
 		  $$ = new VarDeclNode(line, col, $3, $1);
 		  }
 
-type 		: INT
-	  	  {$$ = new IntTypeNode($1->line(), $1->col());}
+type 		: INT { $$ = new IntTypeNode($1->line(), $1->col()); }
 		| INT ARRAY LBRACE INTLITERAL RBRACE { }
 		| BOOL {$$ = new BoolTypeNode($1->line(), $1->col()); }
 		| BOOL ARRAY LBRACE INTLITERAL RBRACE { }
 		| BYTE { $$ = new ByteTypeNode($1->line(), $1->col());}
 		| BYTE ARRAY LBRACE INTLITERAL RBRACE { }
-		| STRING {
-			$$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(),$1->col()));
-		}
+		| STRING
+		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(),$1->col())); }
 		| VOID {$$ = new VoidTypeNode($1->line(), $1->col());}
 
 fnDecl 		: id COLON type formals fnBody {$$ = new FnDeclNode($1->line(), $1->col(), $3, $1, $4, $5);}
 
-formals 	: LPAREN RPAREN { $$ = new std::list<FormalDeclNode*>();}
-		| LPAREN formalsList RPAREN { $$ = $2;}
+formals 	: LPAREN RPAREN { $$ = new std::list<FormalDeclNode*>(); }
+		| LPAREN formalsList RPAREN { $$ = $2; }
 
 
 formalsList	: formalDecl { }
@@ -220,13 +215,15 @@ formalDecl 	: id COLON type { }
 
 fnBody		: LCURLY stmtList RCURLY { }
 
-stmtList 	: /* epsilon */ { $$ = new std::list<StmtNode*>();}
+stmtList 	: /* epsilon */
+		  { $$ = new std::list<StmtNode*>();}
+
 		| stmtList stmt {$$ = $1; $$->push_back($2);}
 
 stmt		: varDecl SEMICOLON {$$ = $1;}
 		| assignExp SEMICOLON { $$ = new AssignStmtNode($1->line(), $1->col(), $1);}
 
-		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($1->line(), $1->col(), $1);} //
+		| lval DASHDASH SEMICOLON { $$ = new PostDecStmtNode($1->line(), $1->col(), $1);}
 
 		| lval CROSSCROSS SEMICOLON { $$ = new PostIncStmtNode($1->line(), $1->col(), $1); }
 
@@ -234,50 +231,77 @@ stmt		: varDecl SEMICOLON {$$ = $1;}
 
 		| WRITE exp SEMICOLON { $$ = new WriteStmtNode($1->line(), $1->col(), $2);}
 
-		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY {$$ = new IfStmtNode($1->col(),$1->col(), $3, $6);}
+		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY
+		  { $$ = new IfStmtNode($1->col(),$1->col(), $3, $6); }
 
-		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY { $$ = new IfElseStmtNode($1->line(),
-			$1->col(), $3, $6, $10 ); }
+		| IF LPAREN exp RPAREN LCURLY stmtList RCURLY ELSE LCURLY stmtList RCURLY
+		  { $$ = new IfElseStmtNode($1->line(), $1->col(), $3, $6, $10); }
 
-		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY { $$ = new WhileStmtNode($1->line(), $1->col(), $3, $6); }
+		| WHILE LPAREN exp RPAREN LCURLY stmtList RCURLY
+		  { $$ = new WhileStmtNode($1->line(), $1->col(), $3, $6); }
 
 		| RETURN exp SEMICOLON { $$ = new ReturnStmtNode($1->line(), $1->col(), $2);}
 
 		| RETURN SEMICOLON {$$ = new ReturnStmtNode($1->line(), $1->col(), NULL);}
 
-		| callExp SEMICOLON {$$ = new CallExpNode($1->line(), $1->col(), $1); }
+		| callExp SEMICOLON {$$ = new CallStmtNode($1->line(), $1->col(), $1); }
 
 
-exp		: assignExp { }
-		| exp DASH exp { }
-		| exp CROSS exp { }
-		| exp STAR exp { }
-		| exp SLASH exp { }
-		| exp AND exp { }
-		| exp OR exp { }
-		| exp EQUALS exp { }
-		| exp NOTEQUALS exp { }
-		| exp GREATER exp { }
-		| exp GREATEREQ exp { }
-		| exp LESS exp { }
-		| exp LESSEQ exp { }
-		| NOT exp { }
-		| DASH term { }
-		| term { }
+exp		: assignExp { $$ = $1; }
 
-assignExp	: lval ASSIGN exp { }
+		| exp DASH exp { $$ = new MinusNode($1->line(), $1->col(), $1, $3); }
 
-callExp        : id LPAREN RPAREN
-          {
-          std::list<ExpNode *>* listOfExp = new std::list<ExpNode *>();
-          $$ = new CallExpNode($1->line(), $1->col(), $1, listOfExp);
-          }
+		| exp CROSS exp { $$ = new PlusNode($1->line(), $1->col(), $1, $3); }
 
-        | id LPAREN actualsList RPAREN
-          { $$ = new CallExpNode($1->line(), $1->col(), $1, $3); }
+		| exp STAR exp { $$ = new TimesNode($1->line(), $1->col(), $1, $3); }
 
-actualsList	: exp { }
-		| actualsList COMMA exp { }
+		| exp SLASH exp { $$ = new DivideNode($1->line(), $1->col(), $1, $3); }
+
+		| exp AND exp { $$ = new AndNode($1->line(), $1->col(), $1, $3); }
+
+		| exp OR exp { $$ = new OrNode($1->line(), $1->col(), $1, $3); }
+
+		| exp EQUALS exp { $$ = new EqualsNode($1->line(), $1->col(), $1, $3); }
+
+		| exp NOTEQUALS exp { $$ = new NotEqualsNode($1->line(), $1->col(), $1, $3); }
+
+		| exp GREATER exp { $$ = new GreaterNode($1->line(), $1->col(), $1, $3); }
+
+		| exp GREATEREQ exp { $$ = new GreaterEqNode($1->line(), $1->col(), $1, $3); }
+
+		| exp LESS exp { $$ = new LessNode($1->line(), $1->col(), $1, $3); }
+
+		| exp LESSEQ exp { $$ = new LessEqNode($1->line(), $1->col(), $1, $3); }
+
+		| NOT exp { $$ = new NotNode($1->line(), $1->col(), $2); }
+
+		| DASH term { $$ = new NegNode($1->line(), $1->col(), $2); }
+
+		| term { $$ = $1; }
+
+assignExp	: lval ASSIGN exp { $$ = new AssignExpNode($1->line(), $1->col(), $1, $3); }
+
+callExp		: id LPAREN RPAREN
+		  {
+		  std::list<ExpNode*>* listOfExp = new std::list<ExpNode*>();
+		  $$ = new CallExpNode($1->line(), $1->col(), $1, listOfExp);
+		  }
+
+		| id LPAREN actualsList RPAREN
+		  { $$ = new CallExpNode($1->line(), $1->col(), $1, $3); }
+
+
+actualsList	: exp
+		  {
+		  $$ = new std::list<ExpNode*>();
+		  $$->push_back($1);
+		  }
+
+		| actualsList COMMA exp
+		  {
+		  $$ = $1;
+		  $$->push_back($3);
+		  }
 
 term 		: lval { }
 		| INTLITERAL { }
