@@ -57,17 +57,23 @@ void FormalDeclNode::unparse(std::ostream& out, int indent){
 
 void FnDeclNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	this ->myType->unparse(out,0);
-	out << " : ";
 	this->myId->unparse(out,0);
+	out << " : ";
+	this ->myType->unparse(out,0);
 	out << "(";
 
-	for(auto formal : *formals){
-		out << ", ";
-		formal->unparse(out,0);
+	bool firstFormal = true;
+	for(auto fm : *formals){
+		if(firstFormal){
+			firstFormal = false;
+		}
+		else{
+			out << ", ";
+		}
+		fm->unparse(out, 0);
 	}
 
-	out << ")\n";
+	out << "){\n";
 
 	for(auto stmt : *bodyVal){
 		stmt->unparse(out, indent+1);
@@ -124,6 +130,7 @@ void CallExpNode::unparse(std::ostream& out, int indent){
 		else{
 			out << ", ";
 		}
+		exp->unparse(out, 0);
 	}
 	out << ")";
 }
