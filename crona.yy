@@ -193,13 +193,22 @@ varDecl 	: id COLON type
 		  }
 
 type 		: INT { $$ = new IntTypeNode($1->line(), $1->col()); }
-		| INT ARRAY LBRACE INTLITERAL RBRACE { }
+		| INT ARRAY LBRACE INTLITERAL RBRACE {
+
+			$$ = new ArrayTypeNode($1->line(), $1->col(), new IntTypeNode($1->line(), $1->col())); }
+
 		| BOOL {$$ = new BoolTypeNode($1->line(), $1->col()); }
-		| BOOL ARRAY LBRACE INTLITERAL RBRACE { }
+
+		| BOOL ARRAY LBRACE INTLITERAL RBRACE {
+			$$ = new ArrayTypeNode($1->line(), $1->col(), new BoolTypeNode($1->line(), $1->col())); }
+
 		| BYTE { $$ = new ByteTypeNode($1->line(), $1->col());}
-		| BYTE ARRAY LBRACE INTLITERAL RBRACE { }
+
+		| BYTE ARRAY LBRACE INTLITERAL RBRACE {
+		$$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(), $1->col()));}
 		| STRING
 		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(),$1->col())); }
+
 		| VOID {$$ = new VoidTypeNode($1->line(), $1->col());}
 
 fnDecl 		: id COLON type formals fnBody {$$ = new FnDeclNode($1->line(), $1->col(), $3, $1, $4, $5);}
@@ -303,14 +312,14 @@ actualsList	: exp
 		  $$->push_back($3);
 		  }
 
-term 		: lval { }
-		| INTLITERAL { }
+term 		: lval { $$ = $1; }
+		| INTLITERAL {}
 		| STRLITERAL { }
-		| TRUE { }
-		| FALSE { }
-		| HAVOC { }
+		| TRUE { $$ = new TrueNode($1->line(), $1->col()); }
+		| FALSE { $$ = new FalseNode($1->line(), $1->col());}
+		| HAVOC {$$ = new HavocNode($1->line(), $1->col()); }
 		| LPAREN exp RPAREN { }
-		| callExp { }
+		| callExp {}
 
 lval		: id {}
 		| id LBRACE exp RBRACE { }
