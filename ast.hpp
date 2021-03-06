@@ -116,7 +116,7 @@ private:
 class IDNode : public LValNode{
 public:
 	IDNode(IDToken * token)
-	: LValNode(token->line(), token->col()) {}
+	: LValNode(token->line(), token->col()), myStrVal(token->value()) { myStrVal = token->value(); }
 
 	void unparse(std::ostream& out, int indent);
 private:

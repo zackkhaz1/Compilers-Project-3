@@ -52,24 +52,26 @@
 %union {
 	crona::Token*                         transToken;
 	crona::IDToken*                       transIDToken;
+	crona::IntLitToken*                   transIntToken;
+	crona::StrToken*                      transStrToken;
 	crona::ProgramNode*                   transProgram;
 	std::list<crona::DeclNode *> *        transDeclList;
 	crona::DeclNode *                     transDecl;
 	crona::VarDeclNode *                  transVarDecl;
 	crona::TypeNode *                     transType;
 	crona::IDNode *                       transID;
-	crona::FnDeclNode*										transFn;
-	crona::FormalDeclNode*								transFormal;
-	std::list<crona::FormalDeclNode*>*		transFormals;
-	crona::FormalDeclNode*								transFormalDecl;
-	std::list<crona::StmtNode*>*					transFnBody;
-	std::list<crona::StmtNode*>*					transStmtList;
-	crona::StmtNode*											transStmt;
-	crona::AssignExpNode*								  transAssignExp;
-	crona::ExpNode*											  transExp;
-	crona::CallExpNode*									  transCallExp;
-	crona::LValNode*											transLval;
-	std::list<ExpNode*>*									transActuals;
+	crona::FnDeclNode*                    transFn;
+	crona::FormalDeclNode*                transFormal;
+	std::list<crona::FormalDeclNode*>*    transFormals;
+	crona::FormalDeclNode*                transFormalDecl;
+	std::list<crona::StmtNode*>*          transFnBody;
+	std::list<crona::StmtNode*>*          transStmtList;
+	crona::StmtNode*                      transStmt;
+	crona::AssignExpNode*                 transAssignExp;
+	crona::ExpNode*                       transExp;
+	crona::CallExpNode*                   transCallExp;
+	crona::LValNode*                      transLval;
+	std::list<ExpNode*>*                  transActualsList;
 }
 
 %define parse.assert
@@ -137,25 +139,25 @@
 *  the names defined in the %union directive above
 */
 /*    (attribute type)    (nonterminal)    */
-%type <transProgram>    program
-%type <transDeclList>   globals
-%type <transDecl>       decl
-%type <transVarDecl>    varDecl
-%type <transType>       type
-%type <transID>         id
-%type <transFn>         fnDecl
-%type <transFormals>    formals
-%type <transFormals>    formalsList
-%type <transFormal>     formalDecl
-%type <transStmtList>   fnBody
-%type <transStmtList>   stmtList
-%type <transStmt>      	stmt
-%type <transAssignExp>  assignExp
-%type <transExp>        exp
-%type <transExp>        term
-%type <transCallExp>    callExp
-%type <transLval>				lval
-%type <transActuals>		actualsList
+%type <transProgram>        program
+%type <transDeclList>       globals
+%type <transDecl>           decl
+%type <transVarDecl>        varDecl
+%type <transType>           type
+%type <transID>             id
+%type <transFn>             fnDecl
+%type <transFormals>        formals
+%type <transFormals>        formalsList
+%type <transFormal>         formalDecl
+%type <transStmtList>       fnBody
+%type <transStmtList>       stmtList
+%type <transStmt>      	    stmt
+%type <transAssignExp>      assignExp
+%type <transExp>            exp
+%type <transExp>            term
+%type <transCallExp>        callExp
+%type <transLval>           lval
+%type <transActualsList>    actualsList
 
 %right ASSIGN
 %left OR
@@ -315,18 +317,18 @@ actualsList	: exp
 		  }
 
 term 		: lval { $$ = $1; }
-		| INTLITERAL {}
-		| STRLITERAL { }
+		| INTLITERAL { $$ = new IntLitNode($1->line(), $1->col(), $1->num()); }
+		| STRLITERAL { $$ = new StrLitNode($1->line(), $1->col(), $1->str()); }
 		| TRUE { $$ = new TrueNode($1->line(), $1->col()); }
 		| FALSE { $$ = new FalseNode($1->line(), $1->col());}
 		| HAVOC {$$ = new HavocNode($1->line(), $1->col()); }
-		| LPAREN exp RPAREN { }
-		| callExp {}
+		| LPAREN exp RPAREN { $$ = $2; }
+		| callExp { $$ = $1; }
 
-lval		: id {}
-		| id LBRACE exp RBRACE { }
+lval		: id { $$ = $1; }
+		| id LBRACE exp RBRACE { $$ = new IndexNode($1->line(), $1->col(), $1, $3); }
 
-id		: ID { }
+id		: ID { $$ = new IDNode($1); }
 
 %%
 
