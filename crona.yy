@@ -3,8 +3,8 @@
 %debug
 %defines
 %define api.namespace{crona}
-%define api.parser.class {Parser}
-/* %define parser_class_name {Parser} // For compilation on older version */
+/* %define api.parser.class {Parser} */
+%define parser_class_name {Parser} // For compilation on older version
 %define parse.error verbose
 %output "parser.cc"
 %token-table
@@ -195,21 +195,22 @@ varDecl 	: id COLON type
 		  }
 
 type 		: INT { $$ = new IntTypeNode($1->line(), $1->col()); }
-		| INT ARRAY LBRACE INTLITERAL RBRACE {
 
-			$$ = new ArrayTypeNode($1->line(), $1->col(), new IntTypeNode($1->line(), $1->col())); }
+		| INT ARRAY LBRACE INTLITERAL RBRACE 
+		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new IntTypeNode($1->line(), $1->col()), $4->num()); }
 
 		| BOOL {$$ = new BoolTypeNode($1->line(), $1->col()); }
 
-		| BOOL ARRAY LBRACE INTLITERAL RBRACE {
-			$$ = new ArrayTypeNode($1->line(), $1->col(), new BoolTypeNode($1->line(), $1->col())); }
+		| BOOL ARRAY LBRACE INTLITERAL RBRACE 
+		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new BoolTypeNode($1->line(), $1->col()), $4->num()); }
 
 		| BYTE { $$ = new ByteTypeNode($1->line(), $1->col());}
 
-		| BYTE ARRAY LBRACE INTLITERAL RBRACE {
-		$$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(), $1->col()));}
+		| BYTE ARRAY LBRACE INTLITERAL RBRACE 
+		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(), $1->col()), $4->num()); }
+		
 		| STRING
-		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(),$1->col())); }
+		  { $$ = new ArrayTypeNode($1->line(), $1->col(), new ByteTypeNode($1->line(),$1->col()), 0); }
 
 		| VOID {$$ = new VoidTypeNode($1->line(), $1->col());}
 
@@ -219,9 +220,11 @@ formals 	: LPAREN RPAREN { $$ = new std::list<FormalDeclNode*>(); }
 		| LPAREN formalsList RPAREN { $$ = $2; }
 
 
-formalsList	: formalDecl {
-	$$ = new std::list<FormalDeclNode*>();
- 	$$->push_back($1); }
+formalsList	: formalDecl 
+		  {
+		  $$ = new std::list<FormalDeclNode*>();
+ 		  $$->push_back($1);
+		  }
 		| formalDecl COMMA formalsList {$$ = $3; $$->push_back($1); }
 
 formalDecl 	: id COLON type { $$ = new FormalDeclNode($1->line(), $1->col(), $3, $1); }

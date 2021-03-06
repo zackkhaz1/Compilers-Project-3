@@ -1,0 +1,39 @@
+foo : void(x : int) {
+	t : int;
+	t = 21;
+	r : int;
+	r = 10;
+	i : int;
+	i = 99;
+
+	a : bool;
+	a = true;
+	b : bool;
+	b = true;
+	c : bool;
+	c = false;
+
+	s : string;
+
+	if(a != d){
+		s = "a != d";
+		write(s);
+	}
+	else{
+		s = "a == d";
+		write(s);
+	}
+
+	flag : bool;
+	flag = true;
+
+	while(flag){
+		arr : bool array[10];
+		flag = false;
+	}
+
+	t = r * (-10) + (i / 9);
+	t = r - i;
+
+	return;
+}

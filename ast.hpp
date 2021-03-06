@@ -126,7 +126,7 @@ private:
 class VarDeclNode : public DeclNode{
 public:
 	VarDeclNode(size_t l, size_t c, TypeNode * type, IDNode * id)
-	: DeclNode(type->line(), type->col()) {}
+	: DeclNode(type->line(), type->col()), myType(type), myId(id){}
 
 	void unparse(std::ostream& out, int indent);
 private:
@@ -162,11 +162,12 @@ private:
 
 class ArrayTypeNode : public TypeNode{
 public:
-	ArrayTypeNode(size_t l, size_t c, TypeNode* type)
-	: TypeNode(type->line(), type->col()), myType(type) {}
+	ArrayTypeNode(size_t l, size_t c, TypeNode* type, int size)
+	: TypeNode(type->line(), type->col()), myType(type) { mySize = size; }
 	void unparse(std::ostream& out, int indent) override;
 private:
 	TypeNode* myType;
+	int mySize;
 };
 
 class BoolTypeNode : public TypeNode{
